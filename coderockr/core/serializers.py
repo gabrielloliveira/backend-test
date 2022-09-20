@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from coderockr.core.models import Investment
+from coderockr.core.models import Investment, Gain
+
+
+class GainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gain
+        exclude = ["id"]
 
 
 class InvestmentSerializer(serializers.ModelSerializer):
@@ -8,6 +14,7 @@ class InvestmentSerializer(serializers.ModelSerializer):
     balance = serializers.ReadOnlyField()
     tax = serializers.ReadOnlyField()
     total_amount = serializers.ReadOnlyField()
+    gains = GainSerializer(many=True, source="gain_set")
 
     class Meta:
         model = Investment
@@ -24,4 +31,5 @@ class InvestmentSerializer(serializers.ModelSerializer):
             "balance",
             "tax",
             "total_amount",
+            "gains",
         ]
