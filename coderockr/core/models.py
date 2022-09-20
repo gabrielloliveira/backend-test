@@ -35,6 +35,7 @@ class Investment(DefaultModel):
         on_delete=models.CASCADE,
         verbose_name=_("dono do investimento"),
     )
+    name = models.CharField(_("nome"), max_length=50, blank=True, null=True)
     status = models.CharField(_("status"), choices=STATUS_CHOICES, default=STATUS_NOT_SETTLED, max_length=11)
     initial_value = models.DecimalField(
         _("valor inicial"),
