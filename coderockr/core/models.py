@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
@@ -54,9 +55,15 @@ class Investment(DefaultModel):
     def __str__(self):
         return f"{self.owner} | {self.name} | {self.status}"
 
+    def save(self, *args, **kwargs):
+        if not self.balance:
+            self.balance = self.initial_value
+        return super(Investment, self).save(*args, **kwargs)
+
     @property
     def expected_balance(self):
-        return self.initial_value
+        gains = [self.initial_value] + list(self.gain_set.values_list("total", flat=True))
+        return Decimal(sum(gains))
 
 
 class Gain(DefaultModel):
@@ -71,3 +78,12 @@ class Gain(DefaultModel):
 
     def __str__(self):
         return f"{self.total} | {self.investment}"
+
+    def calculate_gain(self):
+        gain = self.investment_value * Decimal(1.52)
+        return Decimal(f"{gain:.2f}")
+
+    def save(self, *args, **kwargs):
+        if not self.total:
+            self.total = self.calculate_gain()
+        return super(Gain, self).save(*args, **kwargs)

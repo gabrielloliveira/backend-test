@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import pytest
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from model_bakery import baker
@@ -32,3 +33,13 @@ def test_investment_with_initial_value_gte_0(db, user):
     baker.make("core.Investment", owner=user, initial_value=0)
     baker.make("core.Investment", owner=user, initial_value=50)
     assert True
+
+
+def test_gains_of_investments(db):
+    """When create investment, then create gains if date in past"""
+    two_months_ago = timezone.now().date() - relativedelta(months=2)
+    investment = baker.make("core.Investment", initial_value=1, started_date=two_months_ago)
+    expected_periods = [two_months_ago + relativedelta(months=1), two_months_ago + relativedelta(months=2)]
+
+    assert investment.gain_set.count() == 2
+    assert list(investment.gain_set.order_by("pk").values_list("period", flat=True)) == expected_periods
