@@ -52,7 +52,7 @@ class Investment(DefaultModel):
         verbose_name_plural = _("Investimentos")
 
     def __str__(self):
-        return f"{self.owner} : {self.status}"
+        return f"{self.owner} | {self.name} | {self.status}"
 
     @property
     def expected_balance(self):
@@ -68,3 +68,6 @@ class Gain(DefaultModel):
     class Meta:
         verbose_name = _("Ganho")
         verbose_name_plural = _("Ganhos")
+
+    def __str__(self):
+        return f"{self.total} | {self.investment}"
