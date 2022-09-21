@@ -41,3 +41,7 @@ do tipo de entrada na carteiro do cliente.
 - python-decouple
 - Autenticação por jwt
 - Suporte a banco de dados postgres e sqlite3
+- Docker
+- Heroku
+
+Link para o projeto no ar: https://coderockr.herokuapp.com/
