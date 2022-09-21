@@ -21,6 +21,6 @@ def create_gains(sender, instance, created, **kwargs):
     for i in range(1, qtd_months + 1):
         Gain.objects.create(
             investment=instance,
-            investment_value=instance.balance,
+            investment_value=instance.expected_balance,
             period=instance.started_date + relativedelta(months=i),
         )

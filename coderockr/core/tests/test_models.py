@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 from dateutil.relativedelta import relativedelta
@@ -43,3 +44,42 @@ def test_gains_of_investments(db):
 
     assert investment.gain_set.count() == 2
     assert list(investment.gain_set.order_by("pk").values_list("period", flat=True)) == expected_periods
+
+
+def test_sell_investment_lt_1_year(db):
+    """Tax should by 22.5"""
+    two_months_ago = timezone.now().date() - relativedelta(months=2)
+    investment = baker.make("core.Investment", initial_value=100, started_date=two_months_ago)
+    investment.sell()
+
+    expected_tax = (investment.total_gains * Decimal(22.5)) / 100
+    expected_tax = Decimal(f"{expected_tax:.2f}")
+    assert investment.tax > 0
+    assert investment.total_amount < investment.balance
+    assert expected_tax == investment.tax
+
+
+def test_sell_investment_lt_2_year(db):
+    """Tax should by 18.5"""
+    two_months_ago = timezone.now().date() - relativedelta(months=18)
+    investment = baker.make("core.Investment", initial_value=100, started_date=two_months_ago)
+    investment.sell()
+
+    expected_tax = (investment.total_gains * Decimal(18.5)) / 100
+    expected_tax = Decimal(f"{expected_tax:.2f}")
+    assert investment.tax > 0
+    assert investment.total_amount < investment.balance
+    assert expected_tax == investment.tax
+
+
+def test_sell_investment_gt_2_year(db):
+    """Tax should by 15"""
+    two_months_ago = timezone.now().date() - relativedelta(years=5)
+    investment = baker.make("core.Investment", initial_value=100, started_date=two_months_ago)
+    investment.sell()
+
+    expected_tax = (investment.total_gains * Decimal(15)) / 100
+    expected_tax = Decimal(f"{expected_tax:.2f}")
+    assert investment.tax > 0
+    assert investment.total_amount < investment.balance
+    assert expected_tax == investment.tax

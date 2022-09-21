@@ -1,3 +1,5 @@
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -13,6 +15,15 @@ class InvestmentViewSet(ModelViewSet):
     def get_queryset(self):
         return Investment.objects.filter(owner=self.request.user).order_by("-pk")
 
+    def get_object(self):
+        return get_object_or_404(Investment, uuid=self.kwargs.get("uuid"), owner=self.request.user)
+
     def create(self, request, *args, **kwargs):
         request.data["owner"] = request.user.pk
         return super(InvestmentViewSet, self).create(request, *args, **kwargs)
+
+    @action(methods="POST", detail=True, url_name="sell", url_path="sell/")
+    def sell(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.sell()
+        return super(InvestmentViewSet, self).retrieve(request, *args, **kwargs)

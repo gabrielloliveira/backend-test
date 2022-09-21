@@ -1,9 +1,11 @@
 import uuid
 from decimal import Decimal
 
+from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from coderockr.core.validators import validate_started_date
@@ -62,8 +64,34 @@ class Investment(DefaultModel):
 
     @property
     def expected_balance(self):
-        gains = [self.initial_value] + list(self.gain_set.values_list("total", flat=True))
-        return Decimal(sum(gains))
+        return Decimal(self.initial_value + self.total_gains)
+
+    @property
+    def total_gains(self):
+        return sum(list(self.gain_set.values_list("total", flat=True)))
+
+    @property
+    def tax_rate(self):
+        one_year_ago = timezone.now().date() - relativedelta(years=1)
+        two_year_ago = timezone.now().date() - relativedelta(years=2)
+        if one_year_ago <= self.started_date:
+            return 22.5
+        elif two_year_ago <= self.started_date:
+            return 18.5
+        return 15
+
+    def sell(self):
+        if self.status == self.STATUS_WITHDRAW:
+            raise Exception("Investment already been sold")
+        self.status = self.STATUS_WITHDRAW
+        self.balance = self.expected_balance
+        self.tax = (self.total_gains * Decimal(self.tax_rate)) / 100
+        self.total_amount = self.balance - self.tax
+
+        self.tax = Decimal(f"{self.tax:.2f}")
+        self.total_amount = Decimal(f"{self.total_amount:.2f}")
+
+        self.save()
 
 
 class Gain(DefaultModel):
@@ -80,7 +108,7 @@ class Gain(DefaultModel):
         return f"{self.total} | {self.investment}"
 
     def calculate_gain(self):
-        gain = self.investment_value * Decimal(1.52)
+        gain = (self.investment_value * Decimal(0.52)) / 100
         return Decimal(f"{gain:.2f}")
 
     def save(self, *args, **kwargs):
