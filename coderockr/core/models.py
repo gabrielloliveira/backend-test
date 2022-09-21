@@ -8,6 +8,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from coderockr.core.exceptions import InvestmentAlreadySold
 from coderockr.core.validators import validate_started_date
 
 
@@ -82,7 +83,7 @@ class Investment(DefaultModel):
 
     def sell(self):
         if self.status == self.STATUS_WITHDRAW:
-            raise Exception("Investment already been sold")
+            raise InvestmentAlreadySold("Investment already been sold")
         self.status = self.STATUS_WITHDRAW
         self.balance = self.expected_balance
         self.tax = (self.total_gains * Decimal(self.tax_rate)) / 100
