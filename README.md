@@ -13,7 +13,10 @@ Esta é a resolução do teste prático de backend utilizando o framework Django
 - Rodar o setup inicial com as variáveis de ambiente: python contrib/envfile_generator.py
 - Criar o banco de dados: python manage.py migrate
 - Criar um usuário de teste (username e senha admin)
-- Rodar o servidor: python manage.py runserver
+- Rodar o servidor: python manage.py runserveir
+
+Ou rode através do docker:
+`docker-compose up --build`
 
 ## Modelagem dos dados
 
