@@ -24,8 +24,6 @@ Abaixo está representada a modelagem que eu escolhi para o sistema:
 ## Arquitetura e alguns pontos sobre o sistema
 
 - Todos os endpoints desta aplicação estão representados no arquivo `insomnia.json`
-- A falta de docker neste projeto foi intencional. Como eu quis honrar o compromisso, e considerando que eu tive pouco 
-tempo livre para me dedicar na resolução do desafio, optei por não criar o docker-compose.
 - O mais "correto", ao meu ver, seria criar uma entidade de movimentações, onde poderíamos representar a compra de 
 novas ações e o pagamento de dividendos das mesmas. Operações de entrada e saída na conta do usuário. Entretanto, 
 não implementei isso por entender que o projeto ira servir somente para "demonstrar" as minhas habilidades.
